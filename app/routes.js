@@ -14,6 +14,11 @@ function isValidMail(mail) {
   return re.test(mail);
 }
 
+function isValidPassword(password) {
+  const re = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+  return re.test(password);
+}
+
 exports.init = app => {
   app.post('/users', function(req, res) {
     // Validate fields
@@ -24,6 +29,11 @@ exports.init = app => {
     // Validate email domain
     if (!isValidMail(req.body.email)) {
       res.status(400).send('Invalid email!');
+    }
+
+    // Validate password
+    if (!isValidPassword(req.body.password)) {
+      res.status(400).send('Invalid password!');
     }
 
     res.send('POST Successful!');
