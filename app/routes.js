@@ -1,4 +1,4 @@
-// const controller = require('./controllers/controller');
+require('./tools/simpleHash');
 
 function hasAllParameters(body) {
   return (
