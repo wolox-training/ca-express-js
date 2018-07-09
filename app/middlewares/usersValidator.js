@@ -4,8 +4,8 @@ function hasAllParameters(body) {
   return (
     typeof body.email !== 'undefined' &&
     typeof body.password !== 'undefined' &&
-    typeof body.firstName !== 'undefined' &&
-    typeof body.lastName !== 'undefined'
+    typeof body.first_name !== 'undefined' &&
+    typeof body.last_name !== 'undefined'
   );
 }
 
