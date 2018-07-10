@@ -20,6 +20,7 @@ exports.create = (req, res, next) => {
 exports.authenticate = (req, res, next) => {
   return User.findOne({ where: { email: req.body.email } })
     .then(user => {
+<<<<<<< HEAD
       const hashedPassword = encode().value(req.body.password);
       if (user.password === `${hashedPassword}`) {
         const token = jwt.sign({ user_id: user.id }, JWT_KEY),
@@ -33,6 +34,11 @@ exports.authenticate = (req, res, next) => {
             updated_at: user.updated_at
           };
         res.status(201).send(userWithToken);
+=======
+      const hashedPassword = req.body.password.hashCode();
+      if (user.password === `${hashedPassword}`) {
+        res.status(201).send(user);
+>>>>>>> Add and refactor middlewares, as long as the endpoint declaration without the token
       } else {
         console.log(`Error passwords: DB: ${user.password} VS Req: ${hashedPassword}`);
         next(errors.defaultError(`Invalid user`));
