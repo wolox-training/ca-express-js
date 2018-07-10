@@ -14,3 +14,17 @@ exports.create = (req, res, next) => {
     .then(user => res.status(201).send(user))
     .catch(reason => next(errors.defaultError(`Database error - ${reason}`)));
 };
+
+exports.authenticate = (req, res, next) => {
+  User.findOne({ where: { email: req.body.email } })
+    .then(user => {
+      const hashedPassword = req.body.password.hashCode();
+      if (user.password === `${hashedPassword}`) {
+        res.status(201).send(user);
+      } else {
+        console.log(`Error passwords: DB: ${user.password} VS Req: ${hashedPassword}`);
+        next(errors.defaultError(`Invalid user`));
+      }
+    })
+    .catch(reason => next(errors.defaultError(`Database error - ${reason}`)));
+};
