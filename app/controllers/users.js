@@ -1,6 +1,7 @@
 const User = require(`../models`).user,
   errors = require('../errors'),
   encode = require('hashcode').hashCode;
+  UIDGenerator = require('uid-generator');
 
 exports.create = (req, res, next) => {
   const createUser = User.create({
@@ -20,7 +21,19 @@ exports.authenticate = (req, res, next) => {
     .then(user => {
       const hashedPassword = req.body.password.hashCode();
       if (user.password === `${hashedPassword}`) {
-        res.status(201).send(user);
+        const uidgen = new UIDGenerator();
+        return uidgen.generate().then(token => {
+          const userWithToken = {
+            email: user.email,
+            password: user.password,
+            first_name: user.firstName,
+            last_name: user.lastName,
+            session_token: token,
+            created_at: user.created_at,
+            updated_at: user.updated_at
+          };
+          res.status(201).send(userWithToken);
+        });
       } else {
         console.log(`Error passwords: DB: ${user.password} VS Req: ${hashedPassword}`);
         next(errors.defaultError(`Invalid user`));
