@@ -123,6 +123,7 @@ describe('users controller', () => {
           .send(params)
           .then(res => {
             res.should.have.status(201);
+            res.body.should.have.property('session_token');
             dictum.chai(res, 'Endpoint to create a new user session');
             done();
           });

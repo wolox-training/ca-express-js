@@ -1,7 +1,9 @@
 const User = require(`../models`).user,
   errors = require('../errors'),
-  encode = require('hashcode').hashCode;
-  UIDGenerator = require('uid-generator');
+  encode = require('hashcode').hashCode,
+  UIDGenerator = require('uid-generator'),
+  jwt = require('jsonwebtoken'),
+  JWT_KEY = 'key';
 
 exports.create = (req, res, next) => {
   const createUser = User.create({
@@ -19,11 +21,10 @@ exports.create = (req, res, next) => {
 exports.authenticate = (req, res, next) => {
   User.findOne({ where: { email: req.body.email } })
     .then(user => {
-      const hashedPassword = req.body.password.hashCode();
+      const hashedPassword = encode().value(req.body.password);
       if (user.password === `${hashedPassword}`) {
-        const uidgen = new UIDGenerator();
-        return uidgen.generate().then(token => {
-          const userWithToken = {
+        const token = jwt.sign({ user_id: user.id }, JWT_KEY),
+          userWithToken = {
             email: user.email,
             password: user.password,
             first_name: user.firstName,
@@ -32,8 +33,7 @@ exports.authenticate = (req, res, next) => {
             created_at: user.created_at,
             updated_at: user.updated_at
           };
-          res.status(201).send(userWithToken);
-        });
+        res.status(201).send(userWithToken);
       } else {
         console.log(`Error passwords: DB: ${user.password} VS Req: ${hashedPassword}`);
         next(errors.defaultError(`Invalid user`));
