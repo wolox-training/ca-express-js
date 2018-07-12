@@ -40,3 +40,15 @@ exports.authenticate = (req, res, next) => {
     })
     .catch(reason => next(errors.defaultError(`Database error - ${reason}`)));
 };
+exports.list = (req, res, next) => {
+  jwt.verify(req.headers.session_token, JWT_KEY, function(err, decoded) {
+    if (decoded != null) {
+      // Paginated response goes here
+      res.status(201).send('Yey!');
+    } else if (err != null) {
+      next(errors.defaultError(`Decoding error - ${err}`));
+    } else {
+      next(errors.defaultError(`Unknown error while decoding`));
+    }
+  });
+};
