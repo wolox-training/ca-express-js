@@ -1,13 +1,13 @@
 const User = require(`../models`).user,
-  errors = require('../errors');
-require('../tools/simpleHash');
+  errors = require('../errors'),
+  encode = require('hashcode').hashCode;
 
 exports.create = (req, res, next) => {
   const createUser = User.create({
     firstName: req.body.first_name,
     lastName: req.body.last_name,
     email: req.body.email,
-    password: req.body.password.hashCode()
+    password: encode().value(req.body.password)
   });
 
   createUser
