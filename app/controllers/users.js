@@ -45,8 +45,8 @@ exports.list = (req, res, next) => {
     if (decoded != null) {
       User.findAndCountAll()
         .then(data => {
-          const page = req.query.page || 0, // page number
-            limit = req.query.limit || 0, // number of records per page
+          const page = req.query.page || 1, // page number
+            limit = req.query.limit || 3, // number of records per page
             pages = Math.ceil(data.count / limit),
             offset = limit * (page - 1);
           User.findAll({
