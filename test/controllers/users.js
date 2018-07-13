@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs'),
+  encode = require('hashcode').hashCode,
   path = require('path'),
   chai = require('chai'),
   chaiHttp = require('chai-http'),
@@ -108,7 +109,7 @@ describe('users controller', () => {
         firstName: 'UserName',
         lastName: 'UserLastName',
         email: 'validUser@wolox.com.ar',
-        password: 'passord1'.hashCode()
+        password: encode().value('passord1')
       }).then(() => done());
     });
     context('When requesting with a valid user', () => {
