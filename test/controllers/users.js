@@ -273,6 +273,36 @@ describe('users controller', () => {
             .catch(console.log);
         });
       });
+      context('using bad limit', () => {
+        it('should return a page of 3 users, using default value', done => {
+          chai
+            .request(server)
+            .get(LIST_USERS(-2, 2))
+            .set('session_token', validToken)
+            .then(res => {
+              res.should.have.status(201);
+              res.body.result.length.should.be.eq(3);
+              done();
+            })
+            .catch(console.log);
+        });
+      });
+      context('using bad page', () => {
+        it('should return the first page, using default value', done => {
+          chai
+            .request(server)
+            .get(LIST_USERS(2, -2))
+            .set('session_token', validToken)
+            .then(res => {
+              res.should.have.status(201);
+              res.body.result.length.should.be.eq(2);
+              res.body.result[0].id.should.be.eq(1);
+              res.body.pages.should.be.eq(3);
+              done();
+            })
+            .catch(console.log);
+        });
+      });
     });
     context('When requesting with an invalid token', () => {
       it('should return 501', done => {
