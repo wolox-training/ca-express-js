@@ -43,13 +43,13 @@ exports.authenticate = (req, res, next) => {
 exports.list = (req, res, next) => {
   jwt.verify(req.headers.session_token, JWT_KEY, function(jwtError, decoded) {
     if (decoded != null) {
-      User.findAndCountAll()
+      return User.findAndCountAll()
         .then(data => {
           const page = req.query.page && req.query.page >= 1 ? req.query.page : 1, // page number
             limit = req.query.limit && req.query.limit >= 0 ? req.query.limit : 3, // number of records per page
             pages = Math.ceil(data.count / limit),
             offset = limit * (page - 1);
-          User.findAll({
+          return User.findAll({
             limit,
             offset,
             order: [['id', 'ASC']]
