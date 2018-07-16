@@ -199,13 +199,9 @@ describe('users controller', () => {
   });
   describe(`${LIST_USERS_LABEL} GET`, () => {
     beforeEach('populating database with users', done => {
-      mockUser(1)
-        .then(() => mockUser(2))
-        .then(() => mockUser(3))
-        .then(() => mockUser(4))
-        .then(() => mockUser(5))
-        .then(() => mockUser(6))
-        .then(() => done());
+      Promise.all([mockUser(1), mockUser(2), mockUser(3), mockUser(4), mockUser(5), mockUser(6)]).then(() =>
+        done()
+      );
     });
     context('When requesting with a valid token', () => {
       const validToken = jwt.sign({}, JWT_KEY);
@@ -305,7 +301,7 @@ describe('users controller', () => {
       });
     });
     context('When requesting with an invalid token', () => {
-      it('should return 501', done => {
+      it('should return 500', done => {
         chai
           .request(server)
           .get(LIST_USERS(2, 1))
