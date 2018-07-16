@@ -4,6 +4,18 @@ const User = require(`../models`).user,
   jwt = require('jsonwebtoken'),
   JWT_KEY = require('../constants').jwt_key;
 
+const verifyJwt = token => {
+  return new Promise(function(resolve, reject) {
+    jwt.verify(token, JWT_KEY, function(jwtError, decoded) {
+      if (decoded) {
+        resolve(decoded);
+      } else {
+        reject(jwtError);
+      }
+    });
+  });
+};
+
 exports.create = (req, res, next) => {
   const createUser = User.create({
     firstName: req.body.first_name,
@@ -40,9 +52,10 @@ exports.authenticate = (req, res, next) => {
     })
     .catch(reason => next(errors.defaultError(`Database error - ${reason}`)));
 };
+
 exports.list = (req, res, next) => {
-  jwt.verify(req.headers.session_token, JWT_KEY, function(jwtError, decoded) {
-    if (decoded != null) {
+  verifyJwt(req.headers.session_token)
+    .then(decoded => {
       return User.findAndCountAll()
         .then(data => {
           const page = req.query.page && req.query.page >= 1 ? req.query.page : 1, // page number
@@ -60,10 +73,6 @@ exports.list = (req, res, next) => {
         .catch(function(error) {
           next(errors.defaultError(`Database error - ${error}`));
         });
-    } else if (jwtError != null) {
-      next(errors.defaultError(`Decoding error - ${jwtError}`));
-    } else {
-      next(errors.defaultError(`Unknown error while decoding`));
-    }
-  });
+    })
+    .catch(maybeError => next(errors.defaultError(`Decoding error - ${maybeError || 'Unknown'}`)));
 };
