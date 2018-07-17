@@ -1,12 +1,7 @@
 const errors = require('../errors');
 
-const hasAllParameters = body => {
-  return (
-    typeof body.email !== 'undefined' &&
-    typeof body.password !== 'undefined' &&
-    typeof body.first_name !== 'undefined' &&
-    typeof body.last_name !== 'undefined'
-  );
+const missingParams = (data, ...params) => {
+  return params.filter(p => !data[p]);
 };
 
 const isValidMail = mail => {
@@ -21,8 +16,9 @@ const isValidPassword = password => {
 
 exports.handle = (req, res, next) => {
   // Validate fields
-  if (!hasAllParameters(req.body)) {
-    next(errors.defaultError('Missing parameters!'));
+  const params = missingParams(req.body, 'email', 'password', 'first_name', 'last_name');
+  if (!Array.isArray(params) || params.length) {
+    next(errors.defaultError(`Missing parameters: ${params}`));
     return;
   }
 
