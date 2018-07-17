@@ -2,7 +2,7 @@ const User = require(`../models`).user,
   errors = require('../errors'),
   encode = require('hashcode').hashCode,
   jwt = require('jsonwebtoken'),
-  JWT_KEY = 'key';
+  JWT_KEY = require('../constants').jwt_key;
 
 exports.create = (req, res, next) => {
   const createUser = User.create({
