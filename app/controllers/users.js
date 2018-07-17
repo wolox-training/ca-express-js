@@ -10,7 +10,7 @@ exports.create = (req, res, next) => {
     password: encode().value(req.body.password)
   });
 
-  createUser
+  return createUser
     .then(user => res.status(201).send(user))
     .catch(reason => next(errors.defaultError(`Database error - ${reason}`)));
 };
