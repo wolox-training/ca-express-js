@@ -5,8 +5,8 @@ const User = require(`../models`).user,
   JWT_KEY = require('../constants').jwt_key;
 
 const verifyJwt = token => {
-  return new Promise(function(resolve, reject) {
-    jwt.verify(token, JWT_KEY, function(jwtError, decoded) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, JWT_KEY, (jwtError, decoded) => {
       if (decoded) {
         resolve(decoded);
       } else {
@@ -54,7 +54,7 @@ exports.authenticate = (req, res, next) => {
 };
 
 exports.list = (req, res, next) => {
-  verifyJwt(req.headers.session_token)
+  return verifyJwt(req.headers.session_token)
     .then(decoded => {
       return User.findAndCountAll()
         .then(data => {
@@ -70,7 +70,7 @@ exports.list = (req, res, next) => {
             res.status(201).json({ result: users, count: data.count, pages });
           });
         })
-        .catch(function(error) {
+        .catch(error => {
           next(errors.defaultError(`Database error - ${error}`));
         });
     })

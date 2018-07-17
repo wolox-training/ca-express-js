@@ -23,7 +23,7 @@ const mockUser = emailNumber => {
     firstName: 'UserName',
     lastName: 'UserLastName',
     email: `validUser${emailNumber}@wolox.com.ar`,
-    password: encode().value('passord1')
+    password: encode().value('password1')
   });
 };
 
