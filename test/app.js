@@ -17,7 +17,7 @@ const getTablesQuery = `SELECT table_name FROM information_schema.tables WHERE t
 beforeEach('drop tables, re-create them and populate sample data', done => {
   models.sequelize.query(getTablesQuery).then(tables => {
     if (!tables.length) {
-      return done();
+      done();
     }
     const tableExpression = tables
       .map(table => {
