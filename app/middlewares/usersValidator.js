@@ -1,23 +1,23 @@
 const errors = require('../errors');
 
-function hasAllParameters(body) {
+const hasAllParameters = body => {
   return (
     typeof body.email !== 'undefined' &&
     typeof body.password !== 'undefined' &&
     typeof body.first_name !== 'undefined' &&
     typeof body.last_name !== 'undefined'
   );
-}
+};
 
-function isValidMail(mail) {
+const isValidMail = mail => {
   const re = /[A-Z0-9._%+-]*@wolox.com.ar/;
   return re.test(mail);
-}
+};
 
-function isValidPassword(password) {
+const isValidPassword = password => {
   const re = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
   return re.test(password);
-}
+};
 
 exports.handle = (req, res, next) => {
   // Validate fields
