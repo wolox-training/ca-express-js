@@ -1,7 +1,6 @@
 const User = require(`../models`).user,
   errors = require('../errors'),
   encode = require('hashcode').hashCode,
-  UIDGenerator = require('uid-generator'),
   jwt = require('jsonwebtoken'),
   JWT_KEY = 'key';
 
@@ -19,7 +18,7 @@ exports.create = (req, res, next) => {
 };
 
 exports.authenticate = (req, res, next) => {
-  User.findOne({ where: { email: req.body.email } })
+  return User.findOne({ where: { email: req.body.email } })
     .then(user => {
       const hashedPassword = encode().value(req.body.password);
       if (user.password === `${hashedPassword}`) {
