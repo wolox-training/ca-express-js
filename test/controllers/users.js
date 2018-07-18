@@ -8,7 +8,7 @@ const fs = require('fs'),
   server = require('../../app'),
   dictum = require('dictum.js'),
   User = require(`../../app/models`).user,
-  jwt = require('jsonwebtoken'),
+  jwt = require('../../app/tools/jwtToken'),
   JWT_KEY = 'key';
 
 const NEW_USER_ENDPOINT = '/users',
@@ -204,7 +204,7 @@ describe('users controller', () => {
       );
     });
     context('When requesting with a valid token', () => {
-      const validToken = jwt.sign({}, JWT_KEY);
+      const validToken = jwt.createToken({}, Date.now() + 60000);
       context('using both query params', () => {
         it('should return the first two users', done => {
           chai
@@ -301,15 +301,31 @@ describe('users controller', () => {
       });
     });
     context('When requesting with an invalid token', () => {
-      it('should return 500', done => {
-        chai
-          .request(server)
-          .get(LIST_USERS(2, 1))
-          .catch(res => {
-            res.status.should.be.eq(500);
-            res.response.body.should.have.property('message');
-            done();
-          });
+      const invalidToken = jwt.createToken({}, Date.now() - 1000);
+      context('no token', () => {
+        it('should return 500', done => {
+          chai
+            .request(server)
+            .get(LIST_USERS(2, 1))
+            .catch(res => {
+              res.status.should.be.eq(500);
+              res.response.body.should.have.property('message');
+              done();
+            });
+        });
+      });
+      context('expired token', () => {
+        it('should return 500', done => {
+          chai
+            .request(server)
+            .get(LIST_USERS(2, 1))
+            .set('session_token', invalidToken)
+            .catch(res => {
+              res.status.should.be.eq(500);
+              res.response.body.should.have.property('message');
+              done();
+            });
+        });
       });
     });
   });
