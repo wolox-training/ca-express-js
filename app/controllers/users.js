@@ -1,21 +1,8 @@
 const User = require(`../models`).user,
   errors = require('../errors'),
   encode = require('hashcode').hashCode,
-  jwt = require('jsonwebtoken'),
-  JWT_KEY = require('../constants').jwt_key;
+  jwt = require('../tools/jwtToken');
 require('dotenv').config();
-
-const verifyJwt = token => {
-  return new Promise((resolve, reject) => {
-    jwt.verify(token, JWT_KEY, (jwtError, decoded) => {
-      if (decoded) {
-        resolve(decoded);
-      } else {
-        reject(jwtError);
-      }
-    });
-  });
-};
 
 exports.create = (req, res, next) => {
   const createUser = User.create({
@@ -35,8 +22,7 @@ exports.authenticate = (req, res, next) => {
     .then(user => {
       const hashedPassword = encode().value(req.body.password);
       if (user.password === `${hashedPassword}`) {
-        const expValue = Date.now() + Math.floor(process.env.SESSION_EXP) * 1000;
-        const token = jwt.sign({ user_id: user.id, exp: expValue }, JWT_KEY),
+        const token = jwt.createToken({ user_id: user.id }),
           userWithToken = {
             email: user.email,
             password: user.password,
@@ -56,12 +42,10 @@ exports.authenticate = (req, res, next) => {
 };
 
 exports.list = (req, res, next) => {
-  return verifyJwt(req.headers.session_token)
-    .then(decoded => {
-      if (decoded.exp < Date.now()) {
-        return next(errors.defaultError(`Expired token!`));
-      }
-
+  return jwt
+    .verifyToken(req.headers.session_token)
+    .then(jwt.veryfyExpiration)
+    .then(() => {
       return User.findAndCountAll()
         .then(data => {
           const page = req.query.page && req.query.page >= 1 ? req.query.page : 1, // page number
