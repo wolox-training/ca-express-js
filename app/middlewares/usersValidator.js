@@ -22,12 +22,6 @@ exports.handle = (req, res, next) => {
     return;
   }
 
-  // Validate email domain
-  if (!isValidMail(req.body.email)) {
-    next(errors.defaultError('Invalid email!'));
-    return;
-  }
-
   // Validate password
   if (!isValidPassword(req.body.password)) {
     next(errors.defaultError('Invalid password!'));
