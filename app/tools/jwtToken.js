@@ -1,8 +1,11 @@
 const jwt = require('jsonwebtoken'),
-  JWT_KEY = require('../constants').jwt_key;
+  JWT_KEY = require('../constants').jwt_key,
+  moment = require('moment');
 
-exports.createToken = (payload, exp = Date.now() + Math.floor(process.env.SESSION_EXP) * 1000) => {
-  return jwt.sign({ data: payload, exp: exp }, JWT_KEY)
+  const defaultExpiration = () => moment().add(moment.duration(parseInt(process.env.SESSION_EXP), 'seconds'));
+
+exports.createToken = (payload, exp = defaultExpiration()) => {
+  return jwt.sign({ data: payload, exp: exp.valueOf() }, JWT_KEY)
 };
 
 exports.verifyToken = token => {
@@ -17,9 +20,9 @@ exports.verifyToken = token => {
   });
 };
 
-exports.veryfyExpiration = (payload, comparisonTimestamp = Date.now()) => {
+exports.veryfyExpiration = (payload, comparisonTimestamp = moment()) => {
   return new Promise((resolve, reject) => {
-    if (payload.exp < Date.now()) {
+    if (comparisonTimestamp.isAfter(moment(payload.exp))) {
       reject(`Expired token - exp: ${payload.exp}`);
     } else {
       resolve(payload.data);

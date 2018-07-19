@@ -9,7 +9,7 @@ const fs = require('fs'),
   dictum = require('dictum.js'),
   User = require(`../../app/models`).user,
   jwt = require('../../app/tools/jwtToken'),
-  JWT_KEY = 'key';
+  moment = require('moment');
 
 const NEW_USER_ENDPOINT = '/users',
   NEW_SESSION_ENDPOINT = '/users/sessions',
@@ -204,7 +204,8 @@ describe('users controller', () => {
       );
     });
     context('When requesting with a valid token', () => {
-      const validToken = jwt.createToken({}, Date.now() + 60000);
+      const futureTime = moment().add(moment.duration(60, 'seconds'));
+      const validToken = jwt.createToken({}, futureTime);
       context('using both query params', () => {
         it('should return the first two users', done => {
           chai
@@ -301,7 +302,8 @@ describe('users controller', () => {
       });
     });
     context('When requesting with an invalid token', () => {
-      const invalidToken = jwt.createToken({}, Date.now() - 1000);
+      const pastTime = moment().subtract(moment.duration(1, 'seconds'));
+      const invalidToken = jwt.createToken({}, pastTime);
       context('no token', () => {
         it('should return 500', done => {
           chai
