@@ -46,7 +46,20 @@ exports.list = (req, res, next) => {
   return jwt
     .verifyToken(req.headers.session_token)
     .then(jwt.veryfyExpiration)
-    .then(() => {
+    .then(payload => {
+      if (!payload.value) {
+        if (payload.error) {
+          console.log(`------------- H - ${payload.error}`);
+          next(errors.defaultError(payload.error));
+          return;
+        } else {
+          console.log(`------------- I`);
+          next('Unknown error');
+          return;
+        }
+      }
+
+      console.log(`------------- F`);
       return User.findAndCountAll()
         .then(data => {
           const page = req.query.page && req.query.page >= 1 ? req.query.page : 1, // page number
@@ -58,6 +71,7 @@ exports.list = (req, res, next) => {
             offset,
             order: [['id', 'ASC']]
           }).then(users => {
+            console.log(`------------- G`);
             res.status(201).json({ result: users, count: data.count, pages });
           });
         })

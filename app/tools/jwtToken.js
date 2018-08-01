@@ -12,20 +12,29 @@ exports.verifyToken = token => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, JWT_KEY, (jwtError, decoded) => {
       if (decoded) {
-        resolve(decoded);
+        resolve({ value: decoded });
       } else {
-        reject(jwtError);
+        resolve({ error: jwtError });
       }
+      return
     });
   });
 };
 
 exports.veryfyExpiration = (payload, comparisonTimestamp = moment()) => {
   return new Promise((resolve, reject) => {
-    if (comparisonTimestamp.isAfter(moment(payload.exp))) {
-      reject(`Expired token - exp: ${payload.exp}`);
+    if (!payload.value) {
+      if(payload.error) {
+        resolve(payload);
+      } else {
+        reject('Unknown error');
+      }
+      return; 
+    }
+    if (comparisonTimestamp.isAfter(moment(payload.value.exp || 0))) {
+      resolve({ error: `Expired token - exp: ${payload.value.exp}` });
     } else {
-      resolve(payload.data);
+      resolve({ value: payload.value.data });
     }
   });
 }
