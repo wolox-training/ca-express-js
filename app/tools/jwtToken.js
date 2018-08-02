@@ -14,7 +14,7 @@ exports.verifyToken = token => {
       if (decoded) {
         resolve({ value: decoded });
       } else {
-        resolve({ error: jwtError });
+        reject(jwtError);
       }
       return
     });
