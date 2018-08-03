@@ -8,5 +8,8 @@ exports.config = {
     session: {
       secret: 'some-super-secret'
     }
+  },
+  albums: {
+    url: 'http://somerandomurl.albums.com/'
   }
 };
