@@ -1,20 +1,8 @@
 const User = require(`../models`).user,
   errors = require('../errors'),
   encode = require('hashcode').hashCode,
-  jwt = require('jsonwebtoken'),
-  JWT_KEY = require('../constants').jwt_key;
-
-const verifyJwt = token => {
-  return new Promise((resolve, reject) => {
-    jwt.verify(token, JWT_KEY, (jwtError, decoded) => {
-      if (decoded) {
-        resolve(decoded);
-      } else {
-        reject(jwtError);
-      }
-    });
-  });
-};
+  jwt = require('../tools/jwtToken');
+require('dotenv').config();
 
 exports.create = (req, res, next) => {
   const createUser = User.create({
@@ -34,16 +22,17 @@ exports.authenticate = (req, res, next) => {
     .then(user => {
       const hashedPassword = encode().value(req.body.password);
       if (user.password === `${hashedPassword}`) {
-        const token = jwt.sign({ user_id: user.id }, JWT_KEY),
-          userWithToken = {
-            email: user.email,
-            password: user.password,
-            first_name: user.firstName,
-            last_name: user.lastName,
-            session_token: token,
-            created_at: user.created_at,
-            updated_at: user.updated_at
-          };
+        const token = jwt.createToken({ user_id: user.id });
+        const userWithToken = {
+          email: user.email,
+          password: user.password,
+          first_name: user.firstName,
+          last_name: user.lastName,
+          session_token: token,
+          created_at: user.created_at,
+          updated_at: user.updated_at
+        };
+
         res.status(201).send(userWithToken);
       } else {
         console.log(`Error passwords: DB: ${user.password} VS Req: ${hashedPassword}`);
@@ -54,8 +43,20 @@ exports.authenticate = (req, res, next) => {
 };
 
 exports.list = (req, res, next) => {
-  return verifyJwt(req.headers.session_token)
-    .then(decoded => {
+  return jwt
+    .verifyToken(req.headers.session_token)
+    .then(jwt.veryfyExpiration)
+    .then(payload => {
+      if (!payload.value) {
+        if (payload.error) {
+          next(errors.defaultError(payload.error));
+          return;
+        } else {
+          next('Unknown error');
+          return;
+        }
+      }
+
       return User.findAndCountAll()
         .then(data => {
           const page = req.query.page && req.query.page >= 1 ? req.query.page : 1, // page number

@@ -8,8 +8,8 @@ const fs = require('fs'),
   server = require('../../app'),
   dictum = require('dictum.js'),
   User = require(`../../app/models`).user,
-  jwt = require('jsonwebtoken'),
-  JWT_KEY = 'key';
+  jwt = require('../../app/tools/jwtToken'),
+  moment = require('moment');
 
 const NEW_USER_ENDPOINT = '/users',
   NEW_SESSION_ENDPOINT = '/users/sessions',
@@ -204,7 +204,8 @@ describe('users controller', () => {
       );
     });
     context('When requesting with a valid token', () => {
-      const validToken = jwt.sign({}, JWT_KEY);
+      const futureTime = moment().add(moment.duration(60, 'seconds'));
+      const validToken = jwt.createToken({}, futureTime);
       context('using both query params', () => {
         it('should return the first two users', done => {
           chai
@@ -301,15 +302,32 @@ describe('users controller', () => {
       });
     });
     context('When requesting with an invalid token', () => {
-      it('should return 500', done => {
-        chai
-          .request(server)
-          .get(LIST_USERS(2, 1))
-          .catch(res => {
-            res.status.should.be.eq(500);
-            res.response.body.should.have.property('message');
-            done();
-          });
+      const pastTime = moment().subtract(moment.duration(1, 'seconds'));
+      const invalidToken = jwt.createToken({}, pastTime);
+      context('no token', () => {
+        it('should return 500', done => {
+          chai
+            .request(server)
+            .get(LIST_USERS(2, 1))
+            .catch(res => {
+              res.status.should.be.eq(500);
+              res.response.body.should.have.property('message');
+              done();
+            });
+        });
+      });
+      context('expired token', () => {
+        it('should return 500', done => {
+          chai
+            .request(server)
+            .get(LIST_USERS(2, 1))
+            .set('session_token', invalidToken)
+            .catch(res => {
+              res.status.should.be.eq(500);
+              res.response.body.should.have.property('message');
+              done();
+            });
+        });
       });
     });
   });
