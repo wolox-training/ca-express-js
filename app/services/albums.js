@@ -3,10 +3,9 @@ const request = require('request-promise'),
   ALBUMS_URL = config.albums.url,
   ALBUMS_ENDPOINT = 'albums';
 
-exports.getAlbums = minutes => {
-  return request({
+exports.getAlbums = () =>
+  request({
     method: 'GET',
     uri: `${ALBUMS_URL}${ALBUMS_ENDPOINT}`,
     json: true
   });
-};
