@@ -49,6 +49,9 @@ const config = {
       accessToken: process.env.ROLLBAR_ACCESS_TOKEN,
       environment: process.env.ROLLBAR_ENV
     }
+  },
+  albums: {
+    url: process.env.ALBUMS_URL
   }
 };
 
