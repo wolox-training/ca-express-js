@@ -12,4 +12,5 @@ exports.init = app => {
   app.post('/users/sessions', [sessionParameterValidator.handle, emailValidator.handle], users.authenticate);
   app.get('/users', [tokenHeaderValidator.handle, expirationValidator.handle], users.list);
   app.get('/albums', [tokenHeaderValidator.handle, expirationValidator.handle], albums.list);
+  app.post('/albums/:id', [tokenHeaderValidator.handle, expirationValidator.handle], albums.buy);
 };
