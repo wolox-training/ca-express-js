@@ -2,7 +2,7 @@ const request = require('request-promise'),
   config = require('../../config'),
   models = require('../models'),
   User = models.user,
-  Boughtalbum = models.boughtalbum,
+  Purchase = models.purchase,
   ALBUMS_URL = config.albums.url,
   ALBUMS_ENDPOINT = 'albums';
 
@@ -21,14 +21,14 @@ exports.findOrBuy = (userId, albumId) => {
     }
   };
 
-  return Boughtalbum.findAll(alreadyBought)
+  return Purchase.findAll(alreadyBought)
     .then(purchases => {
       const payload = { value: null, error: null };
       if (purchases.length > 0) {
         payload.error = `Album ${albumId} has already being bought by User ${userId}`;
         return payload;
       }
-      return Boughtalbum.create({ userId, albumId }).then(purchase => {
+      return Purchase.create({ userId, albumId }).then(purchase => {
         payload.value = purchase;
         return payload;
       });
@@ -38,7 +38,7 @@ exports.findOrBuy = (userId, albumId) => {
         return payload;
       }
       return User.findById(userId)
-        .then(user => user.addBoughtalbums([payload.value]))
+        .then(user => user.addPurchases([payload.value]))
         .then(() => payload);
     })
     .then(payload => {

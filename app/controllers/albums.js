@@ -1,6 +1,4 @@
-const User = require('../models').user,
-  Boughtalbum = require('../models').boughtalbum,
-  errors = require('../errors'),
+const errors = require('../errors'),
   albumsService = require('../services/albums');
 require('dotenv').config();
 

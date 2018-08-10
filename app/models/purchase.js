@@ -1,8 +1,8 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-  const BoughtAlbum = sequelize.define(
-    'boughtalbum',
+  const Purchase = sequelize.define(
+    'purchase',
     {
       albumId: { type: DataTypes.INTEGER, primaryKey: true, allowNull: false, field: 'album_id' }
     },
@@ -10,8 +10,8 @@ module.exports = (sequelize, DataTypes) => {
       underscored: true
     }
   );
-  BoughtAlbum.associate = function(models) {
-    BoughtAlbum.belongsTo(models.user);
+  Purchase.associate = function(models) {
+    Purchase.belongsTo(models.user);
   };
-  return BoughtAlbum;
+  return Purchase;
 };
