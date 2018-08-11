@@ -14,6 +14,7 @@ exports.getAlbums = () =>
   });
 
 exports.findOrBuy = (userId, albumId) => {
+  console.log(`------- DATOS: U${userId} A${albumId}`);
   const alreadyBought = {
     where: {
       user_id: userId,
