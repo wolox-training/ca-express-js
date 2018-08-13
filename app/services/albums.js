@@ -4,12 +4,20 @@ const request = require('request-promise'),
   User = models.user,
   Purchase = models.purchase,
   ALBUMS_URL = config.albums.url,
-  ALBUMS_ENDPOINT = 'albums';
+  ALBUMS_ENDPOINT = 'albums',
+  PHOTOS_ENDPOINT = albumId => `albums/${albumId}/photos`;
 
 exports.getAlbums = () =>
   request({
     method: 'GET',
     uri: `${ALBUMS_URL}${ALBUMS_ENDPOINT}`,
+    json: true
+  });
+
+exports.getPhotos = albumId =>
+  request({
+    method: 'GET',
+    uri: `${ALBUMS_URL}${PHOTOS_ENDPOINT(albumId)}`,
     json: true
   });
 
@@ -35,4 +43,21 @@ exports.findOrBuy = (userId, albumId) => {
         .then(() => purchase);
     })
     .then(purchase => purchase.reload());
+};
+
+exports.getPhotosforPurchasedAlbum = (userId, albumId) => {
+  const alreadyBought = {
+    where: {
+      user_id: userId,
+      album_id: albumId
+    }
+  };
+
+  return Purchase.findOne(alreadyBought)
+    .then(purchase => {
+      if (!purchase) throw new Error('Album not purchased');
+      return purchase.albumId;
+    })
+    .then(exports.getPhotos)
+    .then(photos => photos.map(photo => photo.url));
 };
