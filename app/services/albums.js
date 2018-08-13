@@ -14,7 +14,6 @@ exports.getAlbums = () =>
   });
 
 exports.findOrBuy = (userId, albumId) => {
-  console.log(`------- DATOS: U${userId} A${albumId}`);
   const alreadyBought = {
     where: {
       user_id: userId,
@@ -26,29 +25,14 @@ exports.findOrBuy = (userId, albumId) => {
     .then(purchases => {
       const payload = { value: null, error: null };
       if (purchases.length > 0) {
-        payload.error = `Album ${albumId} has already being bought by User ${userId}`;
-        return payload;
+        throw new Error(`Album ${albumId} has already being bought by User ${userId}`);
       }
-      return Purchase.create({ userId, albumId }).then(purchase => {
-        payload.value = purchase;
-        return payload;
-      });
+      return Purchase.create({ userId, albumId });
     })
-    .then(payload => {
-      if (!payload.value) {
-        return payload;
-      }
+    .then(purchase => {
       return User.findById(userId)
-        .then(user => user.addPurchases([payload.value]))
-        .then(() => payload);
+        .then(user => user.addPurchases([purchase]))
+        .then(() => purchase);
     })
-    .then(payload => {
-      if (!payload.value) {
-        return payload;
-      }
-      return payload.value.reload().then(purchase => {
-        payload.value = purchase;
-        return payload;
-      });
-    });
+    .then(purchase => purchase.reload());
 };

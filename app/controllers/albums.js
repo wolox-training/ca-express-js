@@ -12,14 +12,7 @@ exports.list = (req, res, next) => {
 exports.buy = (req, res, next) => {
   return albumsService
     .findOrBuy(req.body.token_data.user_id, req.params.id)
-    .then(payload => {
-      if (!payload.value) {
-        next(errors.defaultError(`Error processing the purchase - ${payload.error}`));
-        return payload;
-      }
-      res.status(201).json(payload.value);
-      return payload;
-    })
+    .then(purchase => res.status(201).json(purchase))
     .catch(error => {
       next(errors.defaultError(`Error processing the purchase - ${error}`));
     });
