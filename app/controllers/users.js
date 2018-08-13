@@ -17,8 +17,8 @@ exports.create = (req, res, next) => {
     .catch(reason => next(errors.defaultError(`Database error - ${reason}`)));
 };
 
-exports.authenticate = (req, res, next) => {
-  return User.findOne({ where: { email: req.body.email } })
+exports.authenticate = (req, res, next) =>
+  User.findOne({ where: { email: req.body.email } })
     .then(user => {
       const hashedPassword = encode().value(req.body.password);
       if (user.password === `${hashedPassword}`) {
@@ -40,10 +40,9 @@ exports.authenticate = (req, res, next) => {
       }
     })
     .catch(reason => next(errors.defaultError(`Database error - ${reason}`)));
-};
 
-exports.list = (req, res, next) => {
-  return User.findAndCountAll()
+exports.list = (req, res, next) =>
+  User.findAndCountAll()
     .then(data => {
       const page = req.query.page && req.query.page >= 1 ? req.query.page : 1, // page number
         limit = req.query.limit && req.query.limit >= 0 ? req.query.limit : 3, // number of records per page
@@ -60,4 +59,3 @@ exports.list = (req, res, next) => {
     .catch(error => {
       next(errors.defaultError(`Database error - ${error}`));
     });
-};
